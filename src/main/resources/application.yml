@@ -1,0 +1,35 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: rent-app
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/rentapp
+    username: rentapp
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: phiruz.zurgalidze@gmail.com
+    password: Phzurgiruz.1999
+  data:
+    redis:
+      host: localhost
+
+
+util:
+  jwt:
+    secret: secret
+    expiration: 1000
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
