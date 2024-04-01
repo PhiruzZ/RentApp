@@ -1,9 +1,13 @@
 package com.example.rentapp.model.entity;
 
+import com.example.rentapp.model.embedable.PropertyValue;
 import com.example.rentapp.model.enums.AgreementParticipants;
+import com.example.rentapp.model.enums.PropertyType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -15,12 +19,20 @@ public class CategoryRequirement extends BaseEntity{
     @JoinColumn(name = "category")
     private ProductCategory category;
 
-    @ManyToOne
-    @JoinColumn(name = "document_type")
-    private DocumentType documentType;
+    @Column(name = "property_name")
+    private String propertyName;
 
-    @Column(name = "required_for")
     @Enumerated(EnumType.STRING)
-    private AgreementParticipants requiredFor;
+    @Column(name = "property_type")
+    private PropertyType propertyType;
+
+    @Column(name = "required")
+    private Boolean required = false;
+
+    @Column(name = "values_predefined")
+    private Boolean valuesPredefined;
+
+    @ElementCollection
+    private List<PropertyValue> possibleValues;
 
 }

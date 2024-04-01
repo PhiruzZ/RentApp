@@ -1,6 +1,8 @@
 package com.example.rentapp.model.dto;
 
+import com.example.rentapp.model.embedable.PropertyValue;
 import com.example.rentapp.model.entity.CategoryRequirement;
+import com.example.rentapp.model.enums.PropertyType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,14 +15,23 @@ import java.util.List;
 public class CategoryRequirementDto {
 
     private Long id;
-    private DocumentTypeDto documentType;
+    private String propertyName;
+    private PropertyType propertyType;
+    private Boolean required;
+    private Boolean valuesPredefined;
+    private List<PropertyValue> possibleValues;
 
     public static List<CategoryRequirementDto> listOf(List<CategoryRequirement> categoryRequirements) {
         return categoryRequirements
                 .stream()
-                .map(categoryRequirement -> CategoryRequirementDto.builder()
+                .map(categoryRequirement ->
+                        CategoryRequirementDto.builder()
                                 .id(categoryRequirement.getId())
-                                .documentType(DocumentTypeDto.of(categoryRequirement.getDocumentType()))
+                                .propertyName(categoryRequirement.getPropertyName())
+                                .propertyType(categoryRequirement.getPropertyType())
+                                .required(categoryRequirement.getRequired())
+                                .valuesPredefined(categoryRequirement.getValuesPredefined())
+                                .possibleValues(categoryRequirement.getPossibleValues())
                                 .build()
                 ).toList();
     }

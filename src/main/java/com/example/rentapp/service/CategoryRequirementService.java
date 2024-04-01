@@ -35,8 +35,7 @@ public class CategoryRequirementService {
     private CategoryRequirement create(ProductCategory productCategory, Long documentTypeId) {
         CategoryRequirement requirement = new CategoryRequirement();
         requirement.setCategory(productCategory);
-        DocumentType documentType = documentTypeService.getById(documentTypeId);
-        requirement.setDocumentType(documentType);
+
         return requirement;
     }
 

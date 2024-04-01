@@ -1,8 +1,12 @@
 package com.example.rentapp.model.entity;
 
+import com.example.rentapp.model.embedable.CityItem;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Setter
 @Getter
@@ -17,12 +21,26 @@ public class Product extends BaseEntity{
     @Column(name = "name")
     private String name;
 
-    @Column(name = "price")
-    private Double price;
+    @OneToOne
+    @JoinColumn(name = "price_id")
+    private ProductPrice productPrice;
+
+    @ElementCollection
+    private List<CityItem> cities;
 
     @Column(name = "address")
     private String address;
 
+    @Column(name = "available_from")
+    private LocalDate availableFrom;
 
+    @Column(name = "available_until")
+    private LocalDate availableUntil;
+
+    @Column(name = "advance_payment_percent")
+    private Double advancePaymentPercent;
+
+    @OneToMany(mappedBy = "product")
+    private List<ProductProperties> properties;
 
 }
