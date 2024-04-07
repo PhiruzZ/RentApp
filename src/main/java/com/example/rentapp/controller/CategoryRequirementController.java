@@ -1,7 +1,9 @@
 package com.example.rentapp.controller;
 
 import com.example.rentapp.model.dto.CategoryRequirementDto;
+import com.example.rentapp.model.embedable.PropertyValue;
 import com.example.rentapp.model.request.AddCategoryRequirementsRequest;
+import com.example.rentapp.model.request.PredefinedValueRequest;
 import com.example.rentapp.service.CategoryRequirementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,20 @@ public class CategoryRequirementController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<CategoryRequirementDto>> getByCategory(@RequestParam Long categoryId){
         return ResponseEntity.ok(categoryRequirementService.getByCategory(categoryId));
+    }
+
+    @PostMapping("/predefined/value")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> addValues(@RequestBody PredefinedValueRequest request){
+        categoryRequirementService.addPredefinedValue(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/predefined/value")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteValues(@RequestBody PredefinedValueRequest request){
+        categoryRequirementService.deletePredefinedValues(request);
+        return ResponseEntity.ok().build();
     }
 
 }

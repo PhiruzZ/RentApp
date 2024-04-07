@@ -13,6 +13,6 @@ public class CreateProductCategoryRequest {
     @NotBlank(message = "name is mandatory!")
     private String name;
 
-    private List<Long> documentTypeIds;
+    private List<CreateCategoryRequirementRequest> requirements;
 
 }

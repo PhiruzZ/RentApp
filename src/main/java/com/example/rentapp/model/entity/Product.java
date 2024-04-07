@@ -18,6 +18,10 @@ public class Product extends BaseEntity{
     @JoinColumn(name = "category")
     private ProductCategory category;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_user_id")
+    private UserEntity owner;
+
     @Column(name = "name")
     private String name;
 

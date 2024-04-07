@@ -1,6 +1,7 @@
 package com.example.rentapp.service;
 
 import com.example.rentapp.model.dto.ProductCategoryDto;
+import com.example.rentapp.model.dto.ProductCategoryShortDto;
 import com.example.rentapp.model.entity.ProductCategory;
 import com.example.rentapp.model.enums.DbStatus;
 import com.example.rentapp.model.request.CreateProductCategoryRequest;
@@ -26,7 +27,7 @@ public class ProductCategoryService {
         ProductCategory productCategory = new ProductCategory();
         productCategory.setName(request.getName());
         productCategoryRepository.save(productCategory);
-        categoryRequirementService.createAll(productCategory, request.getDocumentTypeIds());
+        categoryRequirementService.createAll(productCategory, request.getRequirements());
     }
 
     @Transactional
@@ -36,13 +37,20 @@ public class ProductCategoryService {
         categoryRequirementService.deleteByProductCategory(productCategory.getId());
     }
 
-    private ProductCategory findById(Long id) {
+    public ProductCategory findById(Long id) {
         return productCategoryRepository.findByIdAndDbStatus(id, DbStatus.ACTIVE)
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found category"));
     }
 
-    public List<ProductCategoryDto> getAll() {
+    public List<ProductCategoryShortDto> getAll() {
         List<ProductCategory> productCategories = productCategoryRepository.findByDbStatus(DbStatus.ACTIVE);
-        return ProductCategoryDto.listOf(productCategories);
+        return ProductCategoryShortDto.listOf(productCategories);
+    }
+
+    public ProductCategoryDto getById(Long id) {
+        ProductCategory productCategory = productCategoryRepository.findByIdAndDbStatus(id, DbStatus.ACTIVE)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found product category!"));
+        return ProductCategoryDto.of(productCategory);
+
     }
 }

@@ -14,17 +14,17 @@ public class ProductCategoryDto {
 
     private Long id;
     private String name;
+    private List<CategoryRequirementDto> requirements;
 
-    public static List<ProductCategoryDto> listOf(List<ProductCategory> productCategories) {
-        return productCategories
-                .stream()
-                .map(productCategory ->
-                        ProductCategoryDto
-                                .builder()
-                                .id(productCategory.getId())
-                                .name(productCategory.getName())
-                                .build()
-                ).toList();
 
+    public static ProductCategoryDto of(ProductCategory productCategory) {
+        return ProductCategoryDto
+                .builder()
+                .id(productCategory.getId())
+                .name(productCategory.getName())
+                .requirements(CategoryRequirementDto.listOf(productCategory.getRequirements()))
+                .build();
     }
+
+
 }

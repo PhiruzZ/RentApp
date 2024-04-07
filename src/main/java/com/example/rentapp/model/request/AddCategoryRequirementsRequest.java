@@ -13,6 +13,6 @@ public class AddCategoryRequirementsRequest {
     @NotNull
     private Long categoryId;
 
-    private List<Long> documentTypeIds;
+    private List<CreateCategoryRequirementRequest> requirements;
 
 }

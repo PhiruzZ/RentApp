@@ -1,6 +1,7 @@
 package com.example.rentapp.controller;
 
 import com.example.rentapp.model.dto.ProductCategoryDto;
+import com.example.rentapp.model.dto.ProductCategoryShortDto;
 import com.example.rentapp.model.request.CreateProductCategoryRequest;
 import com.example.rentapp.service.ProductCategoryService;
 import jakarta.validation.Valid;
@@ -33,8 +34,13 @@ public class ProductCategoryController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ProductCategoryDto>> getAll(){
+    public ResponseEntity<List<ProductCategoryShortDto>> getAll(){
         return ResponseEntity.ok(productCategoryService.getAll());
+    }
+
+    @GetMapping
+    public ResponseEntity<ProductCategoryDto> get(@RequestParam Long id){
+        return ResponseEntity.ok(productCategoryService.getById(id));
     }
 
 }
