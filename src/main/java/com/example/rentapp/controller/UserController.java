@@ -19,14 +19,14 @@ public class UserController {
 
 
     @PostMapping("/block")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> blockUser(@RequestParam Long id){
         userService.blockUser(id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/unblock")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> unblockUser(@RequestParam Long id){
         userService.unblockUser(id);
         return ResponseEntity.ok().build();
@@ -40,14 +40,14 @@ public class UserController {
     }
 
     @PostMapping("/verification/confirm")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> confirmVerification(@RequestParam Long id){
         userService.confirmVerification(id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/verification/reject")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> rejectVerification(@RequestParam Long id){
         userService.rejectVerification(id);
         return ResponseEntity.ok().build();

@@ -29,10 +29,10 @@ public class SentOTPService {
     }
 
     public SentOTP findVerifiedForLoginById(String id, OTPPurpose purpose){
-        SentOTP sentOTP = sentOTPRepository.findByIdAndPurpose(id, purpose)
-                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "OTP not sent for email!"));
+        SentOTP sentOTP = sentOTPRepository.findById(id)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "OTP not found"));
         if(!sentOTP.isVerified()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "OTP not sent for email!");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Verified OTP not found");
         }
         return sentOTP;
     }

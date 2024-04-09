@@ -12,6 +12,7 @@ import java.util.UUID;
 @Data
 public class SentOTP implements Serializable {
 
+    @Indexed
     private String id;
     private String otp;
     @Indexed

@@ -29,7 +29,7 @@ public class EmailService {
 			helper.setTo(targetEmail);
 			helper.setFrom(emailFrom);
 			helper.setText(mailText, true);
-			helper.setSubject("Fraud Attempt");
+			helper.setSubject("RentApp OTP");
 			mailSender.send(message);
 		} catch (MessagingException e) {
 			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send email!");

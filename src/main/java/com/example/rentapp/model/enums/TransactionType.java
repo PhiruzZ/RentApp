@@ -4,6 +4,7 @@ public enum TransactionType {
 
     TOPUP,
     CASHOUT,
-    B2B, //balance to balance
+    ADVANCE_PAYMENT,
+    FINAL_PAYMENT
 
 }

@@ -39,4 +39,8 @@ public class UserEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private VerificationStatus verificationStatus;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_balance_id")
+    private UserBalance userBalance;
+
 }

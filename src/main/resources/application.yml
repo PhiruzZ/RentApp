@@ -16,7 +16,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: phiruz.zurgalidze@gmail.com
+    username: pzurg18@freeuni.edu.ge
     password: Phzurgiruz.1999
   data:
     redis:
@@ -25,7 +25,7 @@ spring:
 
 util:
   jwt:
-    secret: secret
+    secret: cGY/4nWqKJg2u8Jmr+wgbfT5eZL5P70ErlC1DCpImiA=
     expiration: 1000
 
 logging:

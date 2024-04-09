@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -119,5 +120,9 @@ public class ProductService {
     public List<ProductShortDto> filter(FilterProductsRequest request) {
         List<Product> products = cityRepository.filter(request);
         return ProductShortDto.listOf(products);
+    }
+
+    public Double calcPriceForDates(ProductPrice productPrice, LocalDate from, LocalDate until) {
+        return productPrice.getBasicPrice();
     }
 }

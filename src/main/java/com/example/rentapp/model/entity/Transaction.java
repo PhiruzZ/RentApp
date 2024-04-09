@@ -39,4 +39,8 @@ public class Transaction extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private TransactionStatus transactionStatus;
 
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+
 }

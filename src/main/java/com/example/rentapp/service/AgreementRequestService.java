@@ -5,6 +5,7 @@ import com.example.rentapp.model.entity.Product;
 import com.example.rentapp.model.entity.UserEntity;
 import com.example.rentapp.model.enums.AgreementRequestStatus;
 import com.example.rentapp.model.enums.DbStatus;
+import com.example.rentapp.model.enums.TransactionType;
 import com.example.rentapp.model.request.CreateAgreementRequestRequest;
 import com.example.rentapp.repository.AgreementRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class AgreementRequestService {
     private final ProductService productService;
     private final AuthService authService;
     private final EmailService emailService;
+    private final TransactionService transactionService;
 
     @Transactional
     public void create(CreateAgreementRequestRequest request) {
@@ -34,7 +36,9 @@ public class AgreementRequestService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Already approved request exists for this product");
         }
         if(product.getAdvancePaymentPercent() != null && product.getAdvancePaymentPercent() > 0.0){
-            //TODO: check if advance payment is made
+            Double amount = productService.calcPriceForDates(product.getProductPrice(),request.getFromDate(), request.getToDate());
+            Double transferAmount = amount * product.getAdvancePaymentPercent() / 100.0;
+            transactionService.makeProductPayment(user.getUserBalance(), product.getOwner().getUserBalance(), transferAmount, product, TransactionType.ADVANCE_PAYMENT);
         }
         createAgreementRequest(request, product, user);
 
@@ -69,6 +73,11 @@ public class AgreementRequestService {
     }
 
     private AgreementRequest findByIdAndUserId(Long id, Long userId) {
+        return agreementRequestRepository.findByIdAndDbStatusAndUserId(id, DbStatus.ACTIVE, userId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    private AgreementRequest findByIdAndFromUserId(Long id, Long userId) {
         return agreementRequestRepository.findByIdAndDbStatusAndFromUserId(id, DbStatus.ACTIVE, userId)
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
@@ -84,5 +93,22 @@ public class AgreementRequestService {
                 //TODO: make refund of advance payment
             }
         }
+    }
+
+
+    public void finalise(Long id) {
+        UserEntity user = authService.getLoggedInUser();
+        AgreementRequest request = findByIdAndFromUserId(id, user.getId());
+        if(!request.getStatus().equals(AgreementRequestStatus.APPROVED)){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Not approved yet");
+        }
+        if (!request.getStatus().equals(AgreementRequestStatus.FINALISED)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Already finalised");
+        }
+        request.setStatus(AgreementRequestStatus.FINALISED);
+        Double price = productService.calcPriceForDates(request.getProduct().getProductPrice(), request.getFromDate(), request.getToDate());
+        Double transferAmount = price * (100 - request.getProduct().getAdvancePaymentPercent()) / 100.0;
+        transactionService.makeProductPayment(user.getUserBalance(),request.getProduct().getOwner().getUserBalance(), transferAmount, request.getProduct(), TransactionType.FINAL_PAYMENT);
+        agreementRequestRepository.save(request);
     }
 }

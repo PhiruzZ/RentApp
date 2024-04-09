@@ -11,7 +11,7 @@ import lombok.Setter;
 @Table(name = "user_balance")
 public class UserBalance extends BaseEntity{
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

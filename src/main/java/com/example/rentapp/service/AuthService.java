@@ -1,9 +1,8 @@
 package com.example.rentapp.service;
 
+import com.example.rentapp.model.entity.UserBalance;
 import com.example.rentapp.model.entity.UserEntity;
-import com.example.rentapp.model.enums.DbStatus;
-import com.example.rentapp.model.enums.OTPPurpose;
-import com.example.rentapp.model.enums.UserRole;
+import com.example.rentapp.model.enums.*;
 import com.example.rentapp.model.redis.SentOTP;
 import com.example.rentapp.model.request.AuthRequest;
 import com.example.rentapp.model.request.RegistrationRequest;
@@ -16,8 +15,6 @@ import com.example.rentapp.util.JwtUtils;
 import com.example.rentapp.util.OTPUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +30,7 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final SentOTPService sentOTPService;
     private final EmailService emailService;
+    private final UserBalanceService userBalanceService;
 
     @Transactional
     public AuthResponse login(AuthRequest authRequest) {
@@ -65,7 +63,11 @@ public class AuthService {
         user.setEmail(sentOTP.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setRole(UserRole.USER);
+        user.setUserStatus(UserStatus.ACTIVE);
+        user.setVerificationStatus(VerificationStatus.NOT_VERIFIED);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        UserBalance userBalance = userBalanceService.createDefaultBalance(user);
+        user.setUserBalance(userBalance);
         userRepository.save(user);
         return  jwtUtils.generateJwtToken(user);
     }

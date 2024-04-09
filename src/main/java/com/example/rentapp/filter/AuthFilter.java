@@ -34,7 +34,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
     private final CustomUserDetailsService customUserDetailsService;
     private final PathMatcher pathMatcher = new AntPathMatcher();
-    private final static List<String> allowedPatterns = List.of("/api/distributor/liberty/**","/v2/api-docs/**","/v3/api-docs/**","/swagger-ui/**","/webjars/**","/actuator/health","/api/auth/**");
+    private final static List<String> allowedPatterns = List.of("/v2/api-docs/**","/v3/api-docs/**","/swagger-ui.html/**","/swagger-ui/index.html/**","/webjars/**","/actuator/health","/auth/**");
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         log.info(request.getServletPath());
@@ -61,8 +61,8 @@ public class AuthFilter extends OncePerRequestFilter {
                 response.getWriter().write(responseBody);
                 return;
             }
-            String clientId = jwtUtils.getClientId(jwt);
-            UserDetails user = customUserDetailsService.loadUserByUsername(clientId);
+            String userId = jwtUtils.getClientId(jwt);
+            UserDetails user = customUserDetailsService.loadUserByUsername(userId);
             ClientAuthenticationService clientAuthentication =
                     new ClientAuthenticationService(user,null,user.getAuthorities(),jwt);
             clientAuthentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

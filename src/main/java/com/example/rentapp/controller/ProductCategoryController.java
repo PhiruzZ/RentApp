@@ -20,14 +20,14 @@ public class ProductCategoryController {
     private final ProductCategoryService productCategoryService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> add(@RequestBody @Valid CreateProductCategoryRequest request){
         productCategoryService.add(request);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> delete(@RequestParam Long id){
         productCategoryService.delete(id);
         return ResponseEntity.ok().build();

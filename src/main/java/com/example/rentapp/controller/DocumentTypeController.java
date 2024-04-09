@@ -19,21 +19,21 @@ public class DocumentTypeController {
     private final DocumentTypeService documentTypeService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> addDocumentType(@RequestBody @Valid CreateDocumentTypeRequest request){
         documentTypeService.addDocumentType(request);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> delete(@RequestParam Long id){
         documentTypeService.delete(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<DocumentTypeDto>> getAll(){
         return ResponseEntity.ok(documentTypeService.getAll());
     }

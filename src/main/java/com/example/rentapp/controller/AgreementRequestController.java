@@ -32,6 +32,12 @@ public class AgreementRequestController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/finalise")
+    public ResponseEntity<Void> finalise(@RequestParam Long id){
+        agreementRequestService.finalise(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping
     public ResponseEntity<Void> cancel(@RequestParam Long id){
         agreementRequestService.cancel(id);
