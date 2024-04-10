@@ -40,7 +40,7 @@ public class Transaction extends BaseEntity{
     private TransactionStatus transactionStatus;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name = "agreement_request_id")
+    private AgreementRequest agreementRequest;
 
 }

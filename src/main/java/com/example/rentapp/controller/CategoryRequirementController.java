@@ -1,7 +1,6 @@
 package com.example.rentapp.controller;
 
 import com.example.rentapp.model.dto.CategoryRequirementDto;
-import com.example.rentapp.model.embedable.PropertyValue;
 import com.example.rentapp.model.request.AddCategoryRequirementsRequest;
 import com.example.rentapp.model.request.PredefinedValueRequest;
 import com.example.rentapp.service.CategoryRequirementService;

@@ -22,13 +22,13 @@ public class AgreementRequestController {
 
     @PutMapping("/approve")
     public ResponseEntity<Void> approve(@RequestParam Long id){
-        agreementRequestService.setStatus(id, AgreementRequestStatus.APPROVED);
+        agreementRequestService.approve(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/reject")
     public ResponseEntity<Void> reject(@RequestParam Long id){
-        agreementRequestService.setStatus(id, AgreementRequestStatus.REJECTED);
+        agreementRequestService.reject(id);
         return ResponseEntity.ok().build();
     }
 

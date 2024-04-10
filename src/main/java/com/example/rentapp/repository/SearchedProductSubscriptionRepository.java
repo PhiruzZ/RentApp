@@ -18,6 +18,7 @@ public interface SearchedProductSubscriptionRepository extends JpaRepository<Sea
                 and ((s.minPrice is null or :price >= s.minPrice)
                 and (s.maxPrice is null or :price <= s.maxPrice))
                 and (s.category.id = :categoryId)
+                and s.dbStatus = 'ACTIVE'
             """)
     List<SearchedProductSubscription> findProductMatches(Double price, LocalDate availableFrom, LocalDate availableUntil, Long categoryId);
 

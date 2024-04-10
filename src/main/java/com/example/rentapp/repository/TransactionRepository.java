@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
@@ -19,4 +20,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     """)
     List<Transaction> findByUserIdAndDbStatus(Long userId, DbStatus dbStatus);
 
+    Optional<Transaction> findByAgreementRequestIdAndDbStatus(Long id, DbStatus dbStatus);
 }

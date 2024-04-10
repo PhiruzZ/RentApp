@@ -34,6 +34,8 @@ public class SearchedProductSubscriptionService {
         subscription.setAvailableFrom(param.getAvailableFrom());
         subscription.setAvailableUntil(param.getAvailableUntil());
         subscription.setUser(user);
+        subscription.setPreferredNotificationChannel(param.getNotificationChannel());
+        subscription.setNotificationTarget(param.getNotificationTarget());
         searchedProductSubscriptionRepository.save(subscription);
     }
 
@@ -45,7 +47,7 @@ public class SearchedProductSubscriptionService {
                 product.getAvailableUntil(),
                 product.getCategory().getId());
 
-        String productLink = "http://localhost:8888/price?id=" + product.getId();
+        String productLink = "http://localhost:8888/product?id=" + product.getId();
         String emailText = "Match for your product has appeared. \n Click link to see details: " + productLink;
         subscriptions.forEach((subscription)->emailService.sendMail(emailText,subscription.getNotificationTarget()));
     }

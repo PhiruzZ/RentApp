@@ -35,42 +35,28 @@ public class AgreementRequestService {
         if(approvedRequest.isPresent()){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Already approved request exists for this product");
         }
+        AgreementRequest agreementRequest = createAgreementRequest(request, product, user);
+
         if(product.getAdvancePaymentPercent() != null && product.getAdvancePaymentPercent() > 0.0){
             Double amount = productService.calcPriceForDates(product.getProductPrice(),request.getFromDate(), request.getToDate());
             Double transferAmount = amount * product.getAdvancePaymentPercent() / 100.0;
-            transactionService.makeProductPayment(user.getUserBalance(), product.getOwner().getUserBalance(), transferAmount, product, TransactionType.ADVANCE_PAYMENT);
+            transactionService.makeProductPayment(user.getUserBalance(), product.getOwner().getUserBalance(), transferAmount, agreementRequest, TransactionType.ADVANCE_PAYMENT);
         }
-        createAgreementRequest(request, product, user);
 
         String emailText = "You have request on product with name: " + product.getName();
         emailService.sendMail(emailText, product.getOwner().getEmail());
     }
 
-    private void createAgreementRequest(CreateAgreementRequestRequest request, Product product, UserEntity user) {
+    private AgreementRequest createAgreementRequest(CreateAgreementRequestRequest request, Product product, UserEntity user) {
         AgreementRequest agreementRequest = new AgreementRequest();
         agreementRequest.setStatus(AgreementRequestStatus.PENDING);
         agreementRequest.setProduct(product);
         agreementRequest.setFromUser(user);
         agreementRequest.setFromDate(request.getFromDate());
         agreementRequest.setToDate(request.getToDate());
-        agreementRequestRepository.save(agreementRequest);
+        return agreementRequestRepository.save(agreementRequest);
     }
 
-    @Transactional
-    public void setStatus(Long id, AgreementRequestStatus agreementRequestStatus) {
-        UserEntity user = authService.getLoggedInUser();
-        AgreementRequest request = findByIdAndUserId(id, user.getId());
-        if(!request.getStatus().equals(AgreementRequestStatus.PENDING)){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Request is already " + request.getStatus().name().toLowerCase());
-        }
-        request.setStatus(agreementRequestStatus);
-        agreementRequestRepository.save(request);
-        if(request.getStatus().equals(AgreementRequestStatus.APPROVED)){
-            List<AgreementRequest> allRequestsForProduct = agreementRequestRepository.findByProductIdAndDbStatusAndStatus(request.getProduct().getId(), DbStatus.ACTIVE, AgreementRequestStatus.PENDING);
-            allRequestsForProduct = allRequestsForProduct.stream().peek((agreementRequest -> agreementRequest.setStatus(AgreementRequestStatus.REJECTED))).toList();
-            agreementRequestRepository.saveAll(allRequestsForProduct);
-        }
-    }
 
     private AgreementRequest findByIdAndUserId(Long id, Long userId) {
         return agreementRequestRepository.findByIdAndDbStatusAndUserId(id, DbStatus.ACTIVE, userId)
@@ -82,20 +68,26 @@ public class AgreementRequestService {
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    @Transactional
     public void cancel(Long id) {
         UserEntity user = authService.getLoggedInUser();
         AgreementRequest request = findByIdAndUserId(id, user.getId());
         if(request.getStatus().equals(AgreementRequestStatus.CANCELLED)){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Request is already " + request.getStatus().name().toLowerCase());
         }
-        if(request.getStatus().equals(AgreementRequestStatus.APPROVED)){
+        if(request.getStatus().equals(AgreementRequestStatus.APPROVED)
+                && request.getProduct().getAdvancePaymentPercent() != null
+                && request.getProduct().getAdvancePaymentPercent() > 0.0){
             if(user.getId().equals(request.getProduct().getOwner().getId())){
-                //TODO: make refund of advance payment
+                transactionService.refundTransactionForAgreementRequest(request.getId());
             }
+        }else {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "You can't cancel request with status: " + request.getStatus());
         }
     }
 
 
+    @Transactional
     public void finalise(Long id) {
         UserEntity user = authService.getLoggedInUser();
         AgreementRequest request = findByIdAndFromUserId(id, user.getId());
@@ -108,7 +100,45 @@ public class AgreementRequestService {
         request.setStatus(AgreementRequestStatus.FINALISED);
         Double price = productService.calcPriceForDates(request.getProduct().getProductPrice(), request.getFromDate(), request.getToDate());
         Double transferAmount = price * (100 - request.getProduct().getAdvancePaymentPercent()) / 100.0;
-        transactionService.makeProductPayment(user.getUserBalance(),request.getProduct().getOwner().getUserBalance(), transferAmount, request.getProduct(), TransactionType.FINAL_PAYMENT);
+        transactionService.makeProductPayment(user.getUserBalance(),request.getProduct().getOwner().getUserBalance(), transferAmount, request, TransactionType.FINAL_PAYMENT);
+        transactionService.moveAmountFromBlockedToAvailable(request.getProduct().getOwner().getUserBalance(), price);
         agreementRequestRepository.save(request);
+    }
+
+    @Transactional
+    public void approve(Long id) {
+        UserEntity user = authService.getLoggedInUser();
+        AgreementRequest request = findByIdAndUserId(id, user.getId());
+        if(!request.getStatus().equals(AgreementRequestStatus.PENDING)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Request is already " + request.getStatus().name().toLowerCase());
+        }
+        request.setStatus(AgreementRequestStatus.APPROVED);
+        agreementRequestRepository.save(request);
+        if(request.getStatus().equals(AgreementRequestStatus.APPROVED)){
+            List<AgreementRequest> allRequestsForProduct = agreementRequestRepository.findByProductIdAndDbStatusAndStatus(request.getProduct().getId(), DbStatus.ACTIVE, AgreementRequestStatus.PENDING);
+            allRequestsForProduct = allRequestsForProduct.stream().peek(agreementRequest -> {
+                agreementRequest.setStatus(AgreementRequestStatus.REJECTED);
+                if(agreementRequest.getProduct().getAdvancePaymentPercent() != null
+                        && agreementRequest.getProduct().getAdvancePaymentPercent() > 0.0) {
+                    transactionService.refundTransactionForAgreementRequest(agreementRequest.getId());
+                }
+            }).toList();
+            agreementRequestRepository.saveAll(allRequestsForProduct);
+        }
+    }
+
+    @Transactional
+    public void reject(Long id) {
+        UserEntity user = authService.getLoggedInUser();
+        AgreementRequest request = findByIdAndUserId(id, user.getId());
+        if(!request.getStatus().equals(AgreementRequestStatus.PENDING)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Request is already " + request.getStatus().name().toLowerCase());
+        }
+        request.setStatus(AgreementRequestStatus.REJECTED);
+        agreementRequestRepository.save(request);
+        if(request.getProduct().getAdvancePaymentPercent() != null
+                && request.getProduct().getAdvancePaymentPercent() > 0.0){
+            transactionService.refundTransactionForAgreementRequest(request.getId());
+        }
     }
 }

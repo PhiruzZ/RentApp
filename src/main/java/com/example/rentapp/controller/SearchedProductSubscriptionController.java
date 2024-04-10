@@ -6,7 +6,6 @@ import com.example.rentapp.service.SearchedProductSubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
 import java.util.List;
 
@@ -24,13 +23,13 @@ public class SearchedProductSubscriptionController {
     }
 
     @DeleteMapping
-    ResponseEntity<Void> delete(@RequestParam Long id){
+    public ResponseEntity<Void> delete(@RequestParam Long id){
         searchedProductSubscriptionService.delete(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/all")
-    ResponseEntity<List<SearchedProductSubscriptionDto>> getByUser(){
+    public ResponseEntity<List<SearchedProductSubscriptionDto>> getByUser(){
         return ResponseEntity.ok(searchedProductSubscriptionService.getByUser());
     }
 

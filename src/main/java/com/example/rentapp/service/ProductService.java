@@ -98,11 +98,18 @@ public class ProductService {
         List<CategoryRequirement> requirements = category.getRequirements();
         for (CategoryRequirement r : requirements){
             if(request.getProperties().containsKey(r.getId())){
-                if(!r.getPossibleValues().contains(request.getProperties().get(r.getId()).getValue())){
+                if(r.getValuesPredefined()
+                        && !r.getPossibleValues().contains(request.getProperties().get(r.getId()).getValue())){
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid value for property. name: " + r.getPropertyName() + "id: " + r.getId());
                 }
             }else if (r.getRequired()){
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Required property is missing. name: " + r.getPropertyName() + "id: " + r.getId());
+            }
+        }
+        List<Long> requirementIds = requirements.stream().map(CategoryRequirement::getId).toList();
+        for (Long key : request.getProperties().keySet()){
+            if(!requirementIds.contains(key)){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Illegal property for category! id: " + key);
             }
         }
     }

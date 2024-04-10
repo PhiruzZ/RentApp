@@ -15,11 +15,12 @@ import java.util.List;
 @Builder
 public class SearchedProductSubscriptionDto {
 
+    private Long id;
     private Double minPrice;
     private Double maxPrice;
     private LocalDate availableFrom;
     private LocalDate availableUntil;
-    private ProductCategory category;
+    private Long categoryId;
     private NotificationChannel preferredNotificationChannel;
     private String notificationTarget;
 
@@ -27,11 +28,12 @@ public class SearchedProductSubscriptionDto {
 
         return subscriptions.stream()
                 .map(subscription -> SearchedProductSubscriptionDto.builder()
+                        .id(subscription.getId())
                         .minPrice(subscription.getMinPrice())
                         .maxPrice(subscription.getMaxPrice())
                         .availableFrom(subscription.getAvailableFrom())
                         .availableUntil(subscription.getAvailableUntil())
-                        .category(subscription.getCategory())
+                        .categoryId(subscription.getCategory().getId())
                         .preferredNotificationChannel(subscription.getPreferredNotificationChannel())
                         .notificationTarget(subscription.getNotificationTarget())
                         .build()

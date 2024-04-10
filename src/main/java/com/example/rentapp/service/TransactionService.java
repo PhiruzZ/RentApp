@@ -1,10 +1,7 @@
 package com.example.rentapp.service;
 
 import com.example.rentapp.model.dto.TransactionDto;
-import com.example.rentapp.model.entity.Product;
-import com.example.rentapp.model.entity.Transaction;
-import com.example.rentapp.model.entity.UserBalance;
-import com.example.rentapp.model.entity.UserEntity;
+import com.example.rentapp.model.entity.*;
 import com.example.rentapp.model.enums.DbStatus;
 import com.example.rentapp.model.enums.PaymentProvider;
 import com.example.rentapp.model.enums.TransactionStatus;
@@ -39,7 +36,7 @@ public class TransactionService {
     }
 
     public void makeProductPayment(UserBalance fromBalance, UserBalance toBalance,
-                                   Double transferAmount, Product product, TransactionType transactionType) {
+                                   Double transferAmount, AgreementRequest agreementRequest, TransactionType transactionType) {
         if(fromBalance.getAvailableAmount() < transferAmount){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You don't have enough balance");
         }
@@ -47,16 +44,16 @@ public class TransactionService {
         toBalance.setBlockedAmount(toBalance.getBlockedAmount() + transferAmount);
         userBalanceRepository.save(fromBalance);
         userBalanceRepository.save(toBalance);
-        createTransaction(fromBalance, toBalance, transferAmount, product, transactionType,
+        createTransaction(fromBalance, toBalance, transferAmount, agreementRequest, transactionType,
                 null, null);
     }
 
     private void createTransaction(UserBalance fromBalance, UserBalance toBalance,
-                                   Double transferAmount, Product product,
+                                   Double transferAmount, AgreementRequest agreementRequest,
                                    TransactionType transactionType, PaymentProvider paymentProvider,
                                    String providerTransactionId) {
         Transaction transaction = new Transaction();
-        transaction.setProduct(product);
+        transaction.setAgreementRequest(agreementRequest);
         transaction.setTransactionStatus(TransactionStatus.SUCCESS);
         transaction.setAmount(transferAmount);
         transaction.setFromBalance(fromBalance);
@@ -81,5 +78,28 @@ public class TransactionService {
         UserEntity user = authService.getLoggedInUser();
         List<Transaction> transactions = transactionRepository.findByUserIdAndDbStatus(user.getId(), DbStatus.ACTIVE);
         return TransactionDto.listOf(transactions);
+    }
+
+    public void refundTransactionForAgreementRequest(Long agreementRequestId) {
+        Transaction transaction = transactionRepository.findByAgreementRequestIdAndDbStatus(agreementRequestId, DbStatus.ACTIVE)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Not fount transaction for agreement request"));
+        if(!transaction.getTransactionStatus().equals(TransactionStatus.SUCCESS)){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can't refund transaction with status " + transaction.getTransactionStatus());
+        }
+        UserBalance fromBalance = transaction.getFromBalance();
+        UserBalance toBalance = transaction.getToBalance();
+
+        fromBalance.setAvailableAmount(fromBalance.getAvailableAmount() + transaction.getAmount());
+        toBalance.setBlockedAmount(toBalance.getBlockedAmount() - transaction.getAmount());
+        transaction.setTransactionStatus(TransactionStatus.REFUNDED);
+        transactionRepository.save(transaction);
+        userBalanceRepository.save(fromBalance);
+        userBalanceRepository.save(toBalance);
+    }
+
+    public void moveAmountFromBlockedToAvailable(UserBalance userBalance, Double price) {
+        userBalance.setBlockedAmount(userBalance.getBlockedAmount() - price);
+        userBalance.setAvailableAmount(userBalance.getAvailableAmount() + price);
+        userBalanceRepository.save(userBalance);
     }
 }
