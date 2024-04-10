@@ -1,6 +1,7 @@
 package com.example.rentapp.model.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +22,7 @@ public class RegistrationRequest {
     private String password;
 
     @NotBlank(message = "phone number is mandatory!")
+    @Pattern(regexp = "^5\\d{8}$")
     private String phoneNumber;
 
 }

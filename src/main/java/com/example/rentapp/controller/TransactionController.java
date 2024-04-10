@@ -1,13 +1,13 @@
 package com.example.rentapp.controller;
 
+import com.example.rentapp.model.dto.TransactionDto;
 import com.example.rentapp.model.request.TransactionRequest;
 import com.example.rentapp.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +26,11 @@ public class TransactionController {
     public ResponseEntity<Void> cashOut(@RequestBody TransactionRequest request){
         transactionService.cashOut(request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<TransactionDto>> getAll(){
+        return ResponseEntity.ok(transactionService.getAll());
     }
 
 }

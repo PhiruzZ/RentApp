@@ -41,7 +41,14 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors-> cors.configurationSource(corsConfiguration()))
                 .sessionManagement(session-> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth-> auth.anyRequest().permitAll());
+                .authorizeHttpRequests(auth-> auth.requestMatchers(
+                        "/v2/api-docs/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html/**",
+                        "/swagger-ui/**",
+                        "/webjars/**",
+                        "/actuator/health",
+                        "/auth/**").permitAll().anyRequest().authenticated());
         http.authenticationProvider(daoAuthenticationProvider());
         http.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

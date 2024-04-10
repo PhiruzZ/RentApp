@@ -46,7 +46,7 @@ public class CategoryRequirementController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/predefined/value")
+    @PutMapping("/predefined/value/remove")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteValues(@RequestBody PredefinedValueRequest request){
         categoryRequirementService.deletePredefinedValues(request);

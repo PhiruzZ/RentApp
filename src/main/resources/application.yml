@@ -26,7 +26,7 @@ spring:
 util:
   jwt:
     secret: cGY/4nWqKJg2u8Jmr+wgbfT5eZL5P70ErlC1DCpImiA=
-    expiration: 1000
+    expiration: 10000
 
 logging:
   level:

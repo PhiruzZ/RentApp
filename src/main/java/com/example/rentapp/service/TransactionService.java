@@ -1,9 +1,11 @@
 package com.example.rentapp.service;
 
+import com.example.rentapp.model.dto.TransactionDto;
 import com.example.rentapp.model.entity.Product;
 import com.example.rentapp.model.entity.Transaction;
 import com.example.rentapp.model.entity.UserBalance;
 import com.example.rentapp.model.entity.UserEntity;
+import com.example.rentapp.model.enums.DbStatus;
 import com.example.rentapp.model.enums.PaymentProvider;
 import com.example.rentapp.model.enums.TransactionStatus;
 import com.example.rentapp.model.enums.TransactionType;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -72,5 +75,11 @@ public class TransactionService {
         createTransaction(balance, null, request.getAmount(),
                 null, TransactionType.CASHOUT, PaymentProvider.MOCK_DISTRIBUTOR_PROVIDER, UUID.randomUUID().toString());
 
+    }
+
+    public List<TransactionDto> getAll() {
+        UserEntity user = authService.getLoggedInUser();
+        List<Transaction> transactions = transactionRepository.findByUserIdAndDbStatus(user.getId(), DbStatus.ACTIVE);
+        return TransactionDto.listOf(transactions);
     }
 }

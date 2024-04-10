@@ -1,6 +1,7 @@
 package com.example.rentapp.repository;
 
 import com.example.rentapp.model.entity.SearchedProductSubscription;
+import com.example.rentapp.model.enums.DbStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -19,4 +20,8 @@ public interface SearchedProductSubscriptionRepository extends JpaRepository<Sea
                 and (s.category.id = :categoryId)
             """)
     List<SearchedProductSubscription> findProductMatches(Double price, LocalDate availableFrom, LocalDate availableUntil, Long categoryId);
+
+    SearchedProductSubscription findByIdAndUserIdAndDbStatus(Long id, Long id1, DbStatus dbStatus);
+
+    List<SearchedProductSubscription> findByUserIdAndDbStatus(Long id, DbStatus dbStatus);
 }

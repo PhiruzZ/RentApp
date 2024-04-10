@@ -2,6 +2,7 @@ package com.example.rentapp.model.dto;
 
 import com.example.rentapp.model.embedable.PropertyValue;
 import com.example.rentapp.model.entity.CategoryRequirement;
+import com.example.rentapp.model.enums.DbStatus;
 import com.example.rentapp.model.enums.PropertyType;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class CategoryRequirementDto {
     public static List<CategoryRequirementDto> listOf(List<CategoryRequirement> categoryRequirements) {
         return categoryRequirements
                 .stream()
+                .filter(categoryRequirement -> categoryRequirement.getDbStatus().equals(DbStatus.ACTIVE))
                 .map(categoryRequirement ->
                         CategoryRequirementDto.builder()
                                 .id(categoryRequirement.getId())

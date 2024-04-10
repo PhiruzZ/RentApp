@@ -10,4 +10,8 @@ public class StorageService {
     public String uploadDocument(MultipartFile document) {
         return "Mock address";
     }
+
+    public void deleteDocument(String address){
+
+    }
 }

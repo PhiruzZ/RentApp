@@ -36,4 +36,8 @@ public class SearchedProductSubscription extends BaseEntity{
     @Column(name = "notification_target")
     private String notificationTarget;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
 }
