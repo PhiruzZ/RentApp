@@ -5,6 +5,7 @@ import com.example.rentapp.model.dto.ProductShortDto;
 import com.example.rentapp.model.embedable.CityItem;
 import com.example.rentapp.model.entity.*;
 import com.example.rentapp.model.enums.DbStatus;
+import com.example.rentapp.model.enums.ProductStatus;
 import com.example.rentapp.model.request.CreateProductRequest;
 import com.example.rentapp.model.request.FilterProductsRequest;
 import com.example.rentapp.repository.CityRepository;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,9 @@ public class ProductService {
     @Transactional
     public void add(CreateProductRequest request) {
         UserEntity loggedUse = authService.getLoggedInUser();
+        if(request.getAvailableUntil().isBefore(request.getAvailableFrom())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid dates");
+        }
         ProductCategory category = productCategoryService.findById(request.getCategoryId());
         validateRequest(request, category);
         Product product = createProduct(request, category, loggedUse);
@@ -57,6 +62,7 @@ public class ProductService {
         product.setAvailableUntil(request.getAvailableUntil());
         product.setAdvancePaymentPercent(request.getAdvancePaymentPercent());
         product.setProperties(createProperties(request.getProperties(), product));
+        product.setProductStatus(ProductStatus.AVAILABLE);
         return productRepository.save(product);
     }
 
@@ -125,11 +131,36 @@ public class ProductService {
     }
 
     public List<ProductShortDto> filter(FilterProductsRequest request) {
-        List<Product> products = cityRepository.filter(request);
+        if(request.getName() != null) request.setName(request.getName().trim().toLowerCase());
+        List<Product> products = productRepository.filter(request, ProductStatus.AVAILABLE, DbStatus.ACTIVE);
         return ProductShortDto.listOf(products);
     }
 
     public Double calcPriceForDates(ProductPrice productPrice, LocalDate from, LocalDate until) {
-        return productPrice.getBasicPrice();
+        Double priceForDay = 0.0;
+        switch (productPrice.getTimeUnitForPrice()){
+            case MINUTE -> priceForDay = productPrice.getBasicPrice() * 60 * 24;
+            case HOUR -> priceForDay = productPrice.getBasicPrice() * 24;
+            case DAY -> priceForDay = productPrice.getBasicPrice();
+            case WEEK -> priceForDay = productPrice.getBasicPrice() / 7;
+            case MONTH -> priceForDay = productPrice.getBasicPrice() / 30;
+            case YEAR -> priceForDay = productPrice.getBasicPrice() / 360;
+        }
+        Long days = ChronoUnit.DAYS.between(from, until);
+        return priceForDay * days;
+    }
+
+    public Product findByIdAndProductStatus(Long productId, ProductStatus productStatus) {
+        return productRepository.findByIdAndProductStatus(productId, productStatus)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found available product"));
+    }
+
+    public void save(Product product) {
+        productRepository.save(product);
+    }
+
+    public Product findByIdAndDbStatusAndOwnerId(Long productId, DbStatus dbStatus, Long userId) {
+        return productRepository.findByIdAndDbStatusAndOwnerId(productId, dbStatus, userId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }

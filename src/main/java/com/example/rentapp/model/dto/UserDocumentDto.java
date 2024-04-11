@@ -13,12 +13,14 @@ import java.util.List;
 public class UserDocumentDto {
 
     private Long id;
+    private String address;
     private DocumentTypeDto documentType;
 
     public static List<UserDocumentDto> listOf(List<UserDocument> userDocuments) {
         return userDocuments.stream()
                 .map(userDocument -> UserDocumentDto.builder()
                                 .id(userDocument.getId())
+                                .address(userDocument.getAddress())
                                 .documentType(DocumentTypeDto.of(userDocument.getDocumentType()))
                                 .build()
                 ).toList();

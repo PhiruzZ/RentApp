@@ -12,9 +12,13 @@ import java.time.LocalDate;
 @Getter
 public class CreateSearchedProductSubscriptionParam {
 
+    @NotNull
     private Double minPrice;
+    @NotNull
     private Double maxPrice;
+    @NotNull
     private LocalDate availableFrom;
+    @NotNull
     private LocalDate availableUntil;
 
     @NotNull

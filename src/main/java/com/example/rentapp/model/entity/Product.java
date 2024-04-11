@@ -1,6 +1,7 @@
 package com.example.rentapp.model.entity;
 
 import com.example.rentapp.model.embedable.CityItem;
+import com.example.rentapp.model.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +44,9 @@ public class Product extends BaseEntity{
 
     @Column(name = "advance_payment_percent")
     private Double advancePaymentPercent;
+
+    @Column(name = "product_status")
+    private ProductStatus productStatus;
 
     @OneToMany(mappedBy = "product")
     private List<ProductProperties> properties;

@@ -28,6 +28,12 @@ util:
     secret: cGY/4nWqKJg2u8Jmr+wgbfT5eZL5P70ErlC1DCpImiA=
     expiration: 10000
 
+minio:
+  url: http://127.0.0.1:9000
+  username: minio
+  password: password
+  bucket: rentapp
+
 logging:
   level:
     org:

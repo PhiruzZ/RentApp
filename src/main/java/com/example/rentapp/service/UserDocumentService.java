@@ -30,11 +30,12 @@ public class UserDocumentService {
     @Transactional
     public void create(UserEntity user, MultipartFile document,  DocumentType documentType){
         UserDocument userDocument = new UserDocument();
-        String documentAddress = storageService.uploadDocument(document);
         userDocument.setUser(user);
-        userDocument.setAddress(documentAddress);
         userDocument.setDocumentType(documentType);
+        userDocument = userDocumentRepository.save(userDocument);
+        userDocument.setAddress("document_" + userDocument.getId());
         userDocumentRepository.save(userDocument);
+        storageService.uploadDocument(document, userDocument.getAddress());
     }
 
     @Transactional
@@ -76,4 +77,11 @@ public class UserDocumentService {
         List<UserDocument> userDocuments = userDocumentRepository.findByUserIdAndDbStatus(userId, DbStatus.ACTIVE);
         return UserDocumentDto.listOf(userDocuments);
     }
+
+    public byte[] getById(Long id) {
+        UserDocument userDocument = userDocumentRepository.findByIdAndDbStatus(id, DbStatus.ACTIVE)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found user document"));
+        return storageService.getDocument(userDocument.getAddress());
+    }
+
 }

@@ -24,6 +24,8 @@ public class UserReview extends BaseEntity{
     @Column(name = "comment")
     private String comment;
 
-    //todo: identifier of operation after review is made
+    @ManyToOne
+    @JoinColumn(name = "agreement_request_id")
+    private AgreementRequest agreementRequest;
 
 }

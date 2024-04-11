@@ -31,4 +31,18 @@ public interface AgreementRequestRepository extends JpaRepository<AgreementReque
     List<AgreementRequest> findByProductIdAndDbStatusAndStatus(Long productId, DbStatus dbStatus, AgreementRequestStatus agreementRequestStatus);
 
     Optional<AgreementRequest> findByIdAndDbStatusAndFromUserId(Long id, DbStatus dbStatus, Long userId);
+
+    @Query("""
+        select a
+        from AgreementRequest a
+        where a.id = :id
+        and a.dbStatus = :dbStatus
+        and (a.product.owner.id = :ownerId)
+    """)
+    Optional<AgreementRequest> findByIdAndOwnerIdAndDbStatus(Long id, Long ownerId, DbStatus dbStatus);
+
+    List<AgreementRequest> findByProductIdAndDbStatus(Long productId, DbStatus dbStatus);
+
+    List<AgreementRequest> findByFromUserIdAndDbStatus(Long userId, DbStatus dbStatus);
+
 }

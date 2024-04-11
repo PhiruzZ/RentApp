@@ -13,4 +13,6 @@ public interface UserDocumentRepository extends JpaRepository<UserDocument, Long
     Optional<UserDocument> findByUserIdAndIdAndDbStatus(Long id, Long id1, DbStatus dbStatus);
 
     List<UserDocument> findByUserIdAndDbStatus(Long id, DbStatus dbStatus);
+
+    Optional<UserDocument> findByIdAndDbStatus(Long id, DbStatus dbStatus);
 }
